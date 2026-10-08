@@ -1,4 +1,4 @@
-name: i12_into_012
+name: todo_to_json
 description: "A simple todo app with local persistence."
 publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
@@ -12,6 +12,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_riverpod: ^3.0.3
+  path_provider: ^2.1.6
   uuid: ^4.5.1
 
 dev_dependencies:
