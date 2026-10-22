@@ -54,71 +54,88 @@ class TodoListScreen extends ConsumerWidget {
     final notifier = ref.read(appStateProvider.notifier);
     final isSelectionMode = appState.selectedTodoIds.isNotEmpty;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          isSelectionMode
-              ? '${appState.selectedTodoIds.length} Selected'
-              : 'Todo App',
-        ),
-        leading: isSelectionMode
-            ? IconButton(
-                icon: const Icon(Icons.close),
-                onPressed: notifier.clearSelection,
+    return PopScope(
+      canPop: !isSelectionMode,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        if (isSelectionMode) {
+          notifier.clearSelection();
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            isSelectionMode
+                ? '${appState.selectedTodoIds.length} Selected'
+                : 'Todo App',
+          ),
+          leading: isSelectionMode
+              ? IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: notifier.clearSelection,
+                )
+              : null,
+          actions: [
+            if (isSelectionMode)
+              IconButton(
+                icon: const Icon(Icons.delete),
+                onPressed: () => _confirmDeletion(context, ref),
               )
-            : null,
-        actions: [
-          if (isSelectionMode)
-            IconButton(
-              icon: const Icon(Icons.delete),
-              onPressed: () => _confirmDeletion(context, ref),
-            )
-          else
-            IconButton(
-              icon: const Icon(Icons.settings),
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => const SettingsScreen(),
+            else
+              IconButton(
+                icon: const Icon(Icons.settings),
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const SettingsScreen(),
+                  ),
                 ),
               ),
-            ),
-        ],
-      ),
-      body: ListView.builder(
-        itemCount: appState.todos.length,
-        itemBuilder: (context, index) {
-          final todo = appState.todos[index];
-          final isSelected = appState.selectedTodoIds.contains(todo.id);
+          ],
+        ),
+        body: appState.todos.isEmpty
+            ? const Center(
+                child: Text(
+                  'No todos yet!\nTap + to add one.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey, fontSize: 16),
+                ),
+              )
+            : ListView.builder(
+                itemCount: appState.todos.length,
+                itemBuilder: (context, index) {
+                  final todo = appState.todos[index];
+                  final isSelected = appState.selectedTodoIds.contains(todo.id);
 
-          return TodoItem(
-            key: ValueKey(todo.id),
-            todo: todo,
-            isSelected: isSelected,
-            isSelectionMode: isSelectionMode,
-            onTap: () {
-              if (isSelectionMode) {
-                notifier.toggleSelection(todo.id);
-              } else {
-                notifier.toggleTodo(todo.id);
-              }
-            },
-            onLongPress: () {
-              notifier.toggleSelection(todo.id);
-            },
-          );
-        },
+                  return TodoItem(
+                    key: ValueKey(todo.id),
+                    todo: todo,
+                    isSelected: isSelected,
+                    isSelectionMode: isSelectionMode,
+                    onTap: () {
+                      if (isSelectionMode) {
+                        notifier.toggleSelection(todo.id);
+                      } else {
+                        notifier.toggleTodo(todo.id);
+                      }
+                    },
+                    onLongPress: () {
+                      notifier.toggleSelection(todo.id);
+                    },
+                  );
+                },
+              ),
+        floatingActionButton: isSelectionMode
+            ? null
+            : FloatingActionButton(
+                onPressed: () {
+                  showDialog<void>(
+                    context: context,
+                    builder: (_) => const AddTodoDialog(),
+                  );
+                },
+                child: const Icon(Icons.add),
+              ),
       ),
-      floatingActionButton: isSelectionMode
-          ? null
-          : FloatingActionButton(
-              onPressed: () {
-                showDialog<void>(
-                  context: context,
-                  builder: (_) => const AddTodoDialog(),
-                );
-              },
-              child: const Icon(Icons.add),
-            ),
     );
   }
 }

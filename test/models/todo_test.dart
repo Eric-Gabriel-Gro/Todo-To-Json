@@ -8,11 +8,9 @@ void main() {
     expect(Todo.fromJson(todo.toJson()), todo);
   });
 
-  test('Todo.fromJson rejects a missing completion value', () {
-    expect(
-      () => Todo.fromJson(const {'id': 'todo-1', 'text': 'Call mom'}),
-      throwsA(isA<TypeError>()),
-    );
+  test('Todo.fromJson defaults isCompleted to false when omitted', () {
+    final todo = Todo.fromJson(const {'id': 'todo-1', 'text': 'Call mom'});
+    expect(todo.isCompleted, isFalse);
   });
 
   test('Todo.fromJson rejects a non-boolean completion value', () {

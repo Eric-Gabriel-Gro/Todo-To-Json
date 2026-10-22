@@ -21,6 +21,7 @@ void main() {
     await tester.tap(find.byIcon(Icons.add));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), 'Buy groceries');
+    await tester.pump();
     await tester.tap(find.text('Add'));
     await tester.pumpAndSettle();
 
@@ -52,6 +53,17 @@ void main() {
 
     expect(find.text('Call mom'), findsNothing);
     expect(storageService.savedState!.todos, isEmpty);
+  });
+
+  testWidgets('settings switches storage backend', (tester) async {
+    final storageService = _MemoryStorageService();
+    await tester.pumpWidget(_testApp(storageService));
+    await tester.tap(find.byIcon(Icons.settings));
+    await tester.pumpAndSettle();
+    expect(find.text('Storage Backend'), findsOneWidget);
+    await tester.tap(find.text('SQLite'));
+    await tester.pumpAndSettle();
+    expect(find.text('SQLite Database (todo_app.db)'), findsOneWidget);
   });
 
   testWidgets('settings update theme and deletion confirmation', (

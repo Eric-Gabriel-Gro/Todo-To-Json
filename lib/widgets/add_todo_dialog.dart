@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'package:todo_to_json/providers/app_state_provider.dart';
 
 /// A dialog for adding a new todo.
@@ -51,9 +50,15 @@ class _AddTodoDialogState extends ConsumerState<AddTodoDialog> {
           onPressed: () => Navigator.of(context).pop(),
           child: const Text('Cancel'),
         ),
-        ElevatedButton(
-          onPressed: _submit,
-          child: const Text('Add'),
+        ValueListenableBuilder<TextEditingValue>(
+          valueListenable: _controller,
+          builder: (context, value, child) {
+            final canSubmit = value.text.trim().isNotEmpty;
+            return ElevatedButton(
+              onPressed: canSubmit ? _submit : null,
+              child: const Text('Add'),
+            );
+          },
         ),
       ],
     );

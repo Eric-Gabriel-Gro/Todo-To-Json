@@ -12,6 +12,8 @@ class SettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final appState = ref.watch(appStateProvider);
     final notifier = ref.read(appStateProvider.notifier);
+    final storageType = ref.watch(storageTypeProvider);
+    final storageNotifier = ref.read(storageTypeProvider.notifier);
 
     return Scaffold(
       appBar: AppBar(
@@ -28,6 +30,31 @@ class SettingsScreen extends ConsumerWidget {
             title: const Text('Ask for Deletion Confirmation'),
             value: appState.asksForDeletionConfirmation,
             onChanged: (_) => notifier.toggleDeletionConfirmation(),
+          ),
+          const Divider(),
+          ListTile(
+            title: const Text('Storage Backend'),
+            subtitle: Text(
+              storageType == StorageType.json
+                  ? 'JSON File (todo_app_state.json)'
+                  : 'SQLite Database (todo_app.db)',
+            ),
+            trailing: SegmentedButton<StorageType>(
+              segments: const [
+                ButtonSegment(
+                  value: StorageType.json,
+                  label: Text('JSON'),
+                ),
+                ButtonSegment(
+                  value: StorageType.sqlite,
+                  label: Text('SQLite'),
+                ),
+              ],
+              selected: {storageType},
+              onSelectionChanged: (selected) {
+                storageNotifier.selectType(selected.first);
+              },
+            ),
           ),
         ],
       ),
